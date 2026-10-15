@@ -17,7 +17,7 @@ dependencies {
     // Processing: drawing, windows, saving frames
     implementation("org.processing:core:4.5.7")
 
-    testImplementation(platform("org.junit:junit-bom:5.12.2"))
+    testImplementation(platform("org.junit:junit-bom:6.1.3"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
