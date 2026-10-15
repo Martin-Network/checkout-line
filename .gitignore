@@ -1,0 +1,34 @@
+# Build output
+.gradle/
+.kotlin/
+build/
+out/
+bin/
+
+# IDEs (contain local paths and personal settings)
+.idea/
+*.iml
+.vscode/
+.classpath
+.project
+.settings/
+
+# Frames, screenshots and videos produced by the app (large files)
+frames/
+screenshots/
+*.mp4
+*.mov
+*.mkv
+
+# Local configuration, secrets, logs, crash dumps
+.env
+.env.*
+local.properties
+*.log
+*.hprof
+hs_err_pid*
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini

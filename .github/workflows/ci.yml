@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0 # full history, needed to check commit messages
+
+      - name: Check commit messages
+        env:
+          EVENT: ${{ github.event_name }}
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD: ${{ github.event.pull_request.head.sha }}
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.sha }}
+        run: |
+          if [ "$EVENT" = "pull_request" ]; then
+            sh .githooks/check-commit-messages.sh "$PR_BASE..$PR_HEAD"
+          elif git cat-file -e "$BEFORE^{commit}" 2>/dev/null; then
+            sh .githooks/check-commit-messages.sh "$BEFORE..$AFTER"
+          else
+            sh .githooks/check-commit-messages.sh -1 "$AFTER"
+          fi
+
+      # Runs Gradle. The Gradle toolchain downloads JDK 27 to compile and test.
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 21
+
+      # Also verifies that gradle-wrapper.jar is an official Gradle release.
+      - uses: gradle/actions/setup-gradle@v6
+
+      - name: Build and test
+        run: ./gradlew build

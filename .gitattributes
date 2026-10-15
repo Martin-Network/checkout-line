@@ -1,0 +1,16 @@
+# Store text with LF line endings in the repository and check it out with LF on every OS.
+* text=auto eol=lf
+
+# Windows scripts need CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Shell scripts break with CRLF
+gradlew text eol=lf
+.githooks/** text eol=lf
+
+# Binary files
+*.jar binary
+*.png binary
+*.jpg binary
+*.mp4 binary

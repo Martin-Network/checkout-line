@@ -1,0 +1,18 @@
+#!/bin/sh
+# Rejects commit messages that do not follow Conventional Commits.
+set -eu
+
+. "$(dirname "$0")/lib/conventional.sh"
+
+subject=$(grep -v '^#' "$1" | head -n 1)
+
+# Allowed locally, squashed away before pushing (the pre-push hook checks that)
+case $subject in
+    "fixup! "* | "squash! "* | "amend! "*) exit 0 ;;
+esac
+
+if ! is_conventional "$subject"; then
+    echo "✗ Commit message rejected: \"$subject\"" >&2
+    print_commit_rules
+    exit 1
+fi

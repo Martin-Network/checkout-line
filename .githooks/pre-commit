@@ -1,0 +1,58 @@
+#!/bin/sh
+# Keeps private things out of the repository.
+# Skip in an emergency with: git commit --no-verify
+set -eu
+
+MAX_FILE_KB=2048
+failed=0
+
+# 1. No personal e-mail address in the public history
+author=$(git var GIT_AUTHOR_IDENT | sed -E 's/.*<([^>]*)>.*/\1/')
+committer=$(git var GIT_COMMITTER_IDENT | sed -E 's/.*<([^>]*)>.*/\1/')
+for email in "$author" "$committer"; do
+    case $email in
+        *@users.noreply.github.com) ;;
+        *)
+            echo "✗ This commit would publish the e-mail address <$email>." >&2
+            echo "  Use your GitHub noreply address instead:" >&2
+            echo "  git config user.email \"<id>+<username>@users.noreply.github.com\"" >&2
+            failed=1
+            break
+            ;;
+    esac
+done
+
+# 2. No secrets (needs gitleaks: https://github.com/gitleaks/gitleaks)
+if command -v gitleaks >/dev/null 2>&1; then
+    if ! gitleaks git --pre-commit --redact --staged --verbose; then
+        echo "✗ gitleaks found something that looks like a secret." >&2
+        failed=1
+    fi
+else
+    echo "! gitleaks is not installed, secrets are not checked." >&2
+fi
+
+# 3. No large files (recordings, frames, dumps)
+large=$(git diff --cached --name-only --diff-filter=AM | while IFS= read -r file; do
+    size=$(git cat-file -s ":$file")
+    if [ "$size" -gt $((MAX_FILE_KB * 1024)) ]; then
+        printf '    %s (%s KB)\n' "$file" $((size / 1024))
+    fi
+done)
+if [ -n "$large" ]; then
+    echo "✗ Files larger than $MAX_FILE_KB KB:" >&2
+    printf '%s\n' "$large" >&2
+    failed=1
+fi
+
+# 4. No local paths that reveal user names (/Users/name, /home/name, C:\Users\name)
+paths=$(git diff --cached -U0 --no-color -- . ':(exclude).githooks' |
+    grep -E '^\+[^+]' |
+    grep -E '(/Users/|/home/|[A-Za-z]:[\\/]+Users[\\/]+)[A-Za-z0-9._-]' || true)
+if [ -n "$paths" ]; then
+    echo "✗ Local paths in staged changes:" >&2
+    printf '%s\n' "$paths" | sed 's/^/    /' >&2
+    failed=1
+fi
+
+exit $failed
