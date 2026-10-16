@@ -3,6 +3,8 @@ package checkout.sim;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class SimulationTest {
 
@@ -37,5 +39,21 @@ class SimulationTest {
         sim.step();
         sim.step();
         assertEquals(2, sim.tick());
+    }
+
+    @Test
+    void shopHasOneCheckoutInsideTheShop() {
+        Simulation sim = new Simulation(1);
+        assertEquals(1, sim.checkouts().size());
+
+        Point register = sim.checkouts().getFirst().register();
+        assertTrue(register.x() > 0 && register.x() < Simulation.SHOP_WIDTH);
+        assertTrue(register.y() > 0 && register.y() < Simulation.SHOP_HEIGHT);
+    }
+
+    @Test
+    void checkoutsCannotBeChangedFromOutside() {
+        Simulation sim = new Simulation(1);
+        assertThrows(UnsupportedOperationException.class, () -> sim.checkouts().clear());
     }
 }

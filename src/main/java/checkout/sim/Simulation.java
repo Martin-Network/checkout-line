@@ -1,5 +1,8 @@
 package checkout.sim;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -24,10 +27,18 @@ public final class Simulation {
 
     private long tick;
 
+    /** Size of the shop in meters. 24 × 13.5 m has the same shape as a 16:9 video. */
+    public static final double SHOP_WIDTH = 24;
+    public static final double SHOP_HEIGHT = 13.5;
+
+    private final List<Checkout> checkouts = new ArrayList<>();
+
     public Simulation(long seed) {
         this.seed = seed;
         this.arrivals = new Random(seed);
         this.decisions = new Random(mix(seed));
+
+        checkouts.add(new Checkout(1, new Point(SHOP_WIDTH / 2, 11)));
     }
 
     /** Moves the world forward by one tick. */
@@ -49,6 +60,11 @@ public final class Simulation {
 
     Random decisions() {
         return decisions;
+    }
+
+    /** All checkouts. The list can be read, but not changed. */
+    public List<Checkout> checkouts() {
+        return Collections.unmodifiableList(checkouts);
     }
 
     /** Turns one seed into a second, unrelated-looking seed (SplitMix64 finaliser). */
