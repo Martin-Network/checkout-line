@@ -2,7 +2,7 @@ package checkout;
 
 import checkout.render.FrameExporter;
 import checkout.render.Palette;
-import checkout.scenes.FirstPixel;
+import checkout.scenes.OneCheckout;
 import checkout.scenes.Scene;
 import checkout.sim.Simulation;
 import processing.core.PApplet;
@@ -34,7 +34,7 @@ public class App extends PApplet {
     private FrameExporter exporter;
 
     private Simulation sim;
-    private final Scene scene = new FirstPixel();
+    private final Scene scene = new OneCheckout();
 
     private long seed = Config.DEFAULT_SEED;
     private float speed = 1;            // ticks per frame
