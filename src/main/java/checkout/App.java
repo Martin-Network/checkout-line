@@ -40,7 +40,7 @@ public class App extends PApplet {
     private float speed = 1;            // ticks per frame
     private float pendingTicks;         // leftover fractions of a tick (slow motion)
     private boolean paused;
-    private boolean showHud = true;
+    private boolean showHud = false;
     private int exportFrameLimit = -1;  // --export=N
 
     public static void main(String[] args) {
